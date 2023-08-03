@@ -1,6 +1,6 @@
 # Örnek component taslağı
 - AlertDialog isminde bir klasör oluştur ve içinde de AlertDialog.tsx oluştur
-- https://www.radix-ui.com/docs/primitives/components/alert-dialog git
+- https://www.radix-ui.com/docs/base/components/alert-dialog git
 - Demo nun sağ altından Stitches seç
 - index.jsx kodunu Accordion.tsx e kopyala / yapıştır
 - export default AlertDialogDemo; kısmını sil

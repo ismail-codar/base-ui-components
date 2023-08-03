@@ -90,36 +90,36 @@ export const Story1: StoryObj<typeof meta> = {
         subItems: [
           {
             title: "Introduction",
-            href: "/docs/primitives/overview/introduction",
+            href: "/docs/base/overview/introduction",
             content:
               "Build high-quality, accessible design systems and web apps.",
           },
           {
             title: "Getting started",
-            href: "/docs/primitives/overview/getting-started",
+            href: "/docs/base/overview/getting-started",
             content:
               "A quick tutorial to get you up and running with Radix Primitives.",
           },
           {
             title: "Styling",
-            href: "/docs/primitives/guides/styling",
+            href: "/docs/base/guides/styling",
             content: "Unstyled and compatible with any styling solution.",
           },
           {
             title: "Animation",
-            href: "/docs/primitives/guides/animation",
+            href: "/docs/base/guides/animation",
             content:
               "Use CSS keyframes or any animation library of your choice.",
           },
           {
             title: "Accessibility",
-            href: "/docs/primitives/overview/accessibility",
+            href: "/docs/base/overview/accessibility",
             content:
               " Tested in a range of browsers and assistive technologies.",
           },
           {
             title: "Releases",
-            href: "/docs/primitives/overview/releases",
+            href: "/docs/base/overview/releases",
             content: "Radix Primitives releases and their changelogs.",
           },
         ],

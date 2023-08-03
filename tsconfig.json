@@ -17,5 +17,5 @@
     "typeRoots": []
   },
   "include": ["./src"],
-  "exclude": ["node_modules", "./primitives"]
+  "exclude": ["node_modules", "./base"]
 }

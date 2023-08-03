@@ -1,1 +1,1 @@
-console.log("please import from primitives folder");
+console.log("please import from base folder");

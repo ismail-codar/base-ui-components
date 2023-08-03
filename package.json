@@ -1,12 +1,12 @@
 {
   "name": "base-ui-components",
   "version": "0.0.0",
-  "main": "./primitives/index.js",
-  "module": "./primitives/index.mjs",
-  "types": "./primitives/index.d.ts",
+  "main": "./base/index.js",
+  "module": "./base/index.mjs",
+  "types": "./base/index.d.ts",
   "private": true,
   "scripts": {
-    "clean": "shx rm -rf .turbo && shx rm -rf node_modules && shx rm -rf primitives",
+    "clean": "shx rm -rf .turbo && shx rm -rf node_modules && shx rm -rf base",
     "upgrade-libs": "ncu -u",
     "build": "tsup --format esm,cjs --dts",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",

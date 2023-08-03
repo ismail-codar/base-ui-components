@@ -32,7 +32,7 @@ export const Story1: StoryObj<typeof meta> = {
     ),
     children: (
       <Repository>
-        <Text>@radix-ui/primitives</Text>
+        <Text>@radix-ui/base</Text>
       </Repository>
     ),
   },
