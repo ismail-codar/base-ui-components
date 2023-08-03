@@ -1,0 +1,70 @@
+{
+  "name": "base-ui-components",
+  "version": "0.0.0",
+  "main": "./primitives/index.js",
+  "module": "./primitives/index.mjs",
+  "types": "./primitives/index.d.ts",
+  "private": true,
+  "scripts": {
+    "clean": "shx rm -rf .turbo && shx rm -rf node_modules && shx rm -rf primitives",
+    "upgrade-libs": "ncu -u",
+    "build": "tsup --format esm,cjs --dts",
+    "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
+    "storybook": "storybook dev -p 6001",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@radix-ui/colors": "^1.0.1",
+    "@radix-ui/react-accordion": "^1.1.2",
+    "@radix-ui/react-alert-dialog": "^1.0.4",
+    "@radix-ui/react-aspect-ratio": "^1.0.3",
+    "@radix-ui/react-avatar": "^1.0.3",
+    "@radix-ui/react-checkbox": "^1.0.4",
+    "@radix-ui/react-dropdown-menu": "^2.0.5",
+    "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-menubar": "^1.0.3",
+    "@radix-ui/react-navigation-menu": "^1.1.3",
+    "@radix-ui/react-popover": "^1.0.6",
+    "@radix-ui/react-progress": "^1.0.3",
+    "@radix-ui/react-radio-group": "^1.1.3",
+    "@radix-ui/react-scroll-area": "^1.0.4",
+    "@radix-ui/react-select": "^1.2.2",
+    "@radix-ui/react-separator": "^1.0.3",
+    "@radix-ui/react-slider": "^1.1.2",
+    "@radix-ui/react-switch": "^1.0.3",
+    "@radix-ui/react-tabs": "^1.0.4",
+    "@radix-ui/react-toast": "^1.1.4",
+    "@radix-ui/react-toggle": "^1.0.3",
+    "@radix-ui/react-toggle-group": "^1.0.4",
+    "@radix-ui/react-toolbar": "^1.0.4",
+    "@stitches/react": "^1.2.8",
+    "@storybook/addon-essentials": "^7.2.1",
+    "@storybook/addon-interactions": "^7.2.1",
+    "@storybook/addon-links": "^7.2.1",
+    "@storybook/addon-onboarding": "^1.0.8",
+    "@storybook/blocks": "^7.2.1",
+    "@storybook/react": "^7.2.1",
+    "@storybook/react-vite": "^7.2.1",
+    "@storybook/testing-library": "^0.2.0",
+    "clsx": "^2.0.0",
+    "downshift": "^8.1.0",
+    "react": "^18.2.0",
+    "storybook": "7.2.1",
+    "totalist": "^3.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.9",
+    "react-dom": "^18.2.0",
+    "shx": "^0.3.4",
+    "tsup": "^7.2.0",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.8"
+  },
+  "overrides": {
+    "string-width": "^4"
+  },
+  "resolutions": {
+    "string-width": "^4"
+  }
+}
