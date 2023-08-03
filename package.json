@@ -50,21 +50,15 @@
     "clsx": "^2.0.0",
     "downshift": "^8.1.0",
     "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "storybook": "7.2.1",
     "totalist": "^3.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.22.9",
-    "react-dom": "^18.2.0",
     "shx": "^0.3.4",
     "tsup": "^7.2.0",
     "typescript": "^5.1.6",
     "vite": "^4.4.8"
-  },
-  "overrides": {
-    "string-width": "^4"
-  },
-  "resolutions": {
-    "string-width": "^4"
   }
 }
