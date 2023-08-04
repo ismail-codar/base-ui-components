@@ -6,7 +6,7 @@
   "types": "./base/index.d.ts",
   "private": true,
   "scripts": {
-    "clean": "shx rm -rf .turbo && shx rm -rf node_modules && shx rm -rf base",
+    "clean": "shx rm -rf .turbo && shx rm -rf base && shx rm -rf node_modules",
     "upgrade-libs": "ncu -u",
     "build": "tsup --format esm,cjs --dts",
     "dev": "tsup src/index.ts --format esm,cjs --dts --watch",
@@ -49,6 +49,7 @@
     "@storybook/testing-library": "^0.2.0",
     "clsx": "^2.0.0",
     "downshift": "^8.1.0",
+    "flatpickr": "^4.6.13",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "storybook": "7.2.1",

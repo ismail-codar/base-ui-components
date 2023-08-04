@@ -1,12 +1,12 @@
-import React, { FC, useEffect, useState } from "react";
-import { useCombobox, useMultipleSelection, useSelect } from "downshift";
+import React, { useEffect } from "react";
+import { useCombobox, useMultipleSelection } from "downshift";
 import { styled } from "@stitches/react";
-import clsx from "clsx";
 import { Input as DefaultInput } from "../Input/Input";
 
 export interface ISelectItem<T extends unknown> {
   value: string | number;
   label: string;
+  avatar?: { photo?: string; fullName?: string };
   data?: T;
 }
 
@@ -19,15 +19,11 @@ const AutoCompleteContainer = styled("div", {
   flexDirection: "column",
 });
 
-const AutoCompleteLabel = styled("label", { width: "fit-content" });
-
 const SelectedItemList = styled("div", {
   display: "inline-flex",
-  padding: "0.375rem",
   backgroundColor: "#ffffff",
   flexWrap: "wrap",
   alignItems: "center",
-  gap: "0.5rem",
   boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
 });
 
@@ -65,7 +61,8 @@ const ListContainer = styled("ul", {
   position: "absolute",
   zIndex: "1",
   width: "100%",
-  padding: "0",
+  padding: 0,
+  margin: 0,
   backgroundColor: "#ffffff",
   maxHeight: "20rem",
   boxShadow:
@@ -90,13 +87,14 @@ export const Autocomplete = <T extends unknown>({
   className,
   onChange,
   placeholder,
-  label,
   loading,
   Input,
   Wrapper,
   Trigger,
   onSearch,
-  filter,
+  filter = (item, searchString) => {
+    return item.label.toLowerCase().includes(searchString.toLowerCase());
+  },
 }: {
   multiple?: boolean;
   data: ISelectItem<T>[];
@@ -104,11 +102,10 @@ export const Autocomplete = <T extends unknown>({
   value?: (string | number)[];
   onChange?: (items: (ISelectItem<T> | null | undefined)[]) => void;
   placeholder?: string;
-  label?: string;
   loading?: boolean;
   Input?: React.FC<any>;
   Wrapper?: React.FC<ISelectItem<T>>;
-  Trigger: React.FC<{ loading?: boolean }>;
+  Trigger?: React.FC<{ loading?: boolean }>;
   className?: string;
   onSearch?: (text: string) => void;
   filter?: (item: ISelectItem<T>, searchString: string) => boolean;
@@ -149,6 +146,7 @@ export const Autocomplete = <T extends unknown>({
     selectedItem,
     inputValue,
     setInputValue,
+    openMenu,
     closeMenu,
   } = useCombobox({
     items,
@@ -160,26 +158,6 @@ export const Autocomplete = <T extends unknown>({
     itemToString(item) {
       return item ? item.label : "";
     },
-    // defaultHighlightedIndex: 0, // after selection, highlight the first item.
-    // selectedItem: null,
-    // stateReducer(state, actionAndChanges) {
-    //   const { changes, type } = actionAndChanges;
-
-    //   switch (type) {
-    //     case useCombobox.stateChangeTypes.InputKeyDownEnter:
-    //     case useCombobox.stateChangeTypes.ItemClick:
-    //     case useCombobox.stateChangeTypes.InputBlur:
-    //       return {
-    //         ...changes,
-    //         ...(changes.selectedItem && {
-    //           isOpen: true,
-    //           highlightedIndex: 0,
-    //         }),
-    //       };
-    //     default:
-    //       return changes;
-    //   }
-    // },
     onStateChange({
       inputValue: newInputValue,
       type,
@@ -188,7 +166,7 @@ export const Autocomplete = <T extends unknown>({
       switch (type) {
         case useCombobox.stateChangeTypes.InputKeyDownEnter:
         case useCombobox.stateChangeTypes.ItemClick:
-        case useCombobox.stateChangeTypes.InputBlur:
+          // case useCombobox.stateChangeTypes.InputBlur:
           const newSelectedItems = multiple
             ? [...selectedItems!, newSelectedItem!]
             : [newSelectedItem];
@@ -196,11 +174,14 @@ export const Autocomplete = <T extends unknown>({
           newInputValue && onChange?.(newSelectedItems);
           if (!multiple) {
             closeMenu();
+          } else {
+            openMenu();
+            setInputValue("");
           }
           break;
 
         case useCombobox.stateChangeTypes.InputChange:
-          setInputValue(newInputValue!);
+          if (!multiple) setInputValue(newInputValue!);
 
           break;
         default:
@@ -228,16 +209,25 @@ export const Autocomplete = <T extends unknown>({
     onSearch?.(inputValue);
   }, [inputValue]);
 
+  useEffect(() => {
+    // TODO setInputValue("");
+    setItems(data);
+  }, [data]);
+
+  const _selectedItem = selectedItem || selectedItems[0];
   const inputProps = {
     placeholder,
-    css: { width: "100%", minWidth: "100px" },
+    css: {
+      width: "100%",
+      minWidth: "100px",
+      paddingLeft: _selectedItem?.avatar ? 36 : undefined,
+    },
     ...getInputProps(getDropdownProps({ preventKeyAction: isOpen })),
   };
 
   return (
     <AutoCompleteRoot className={className}>
       <AutoCompleteContainer>
-        <AutoCompleteLabel {...getLabelProps()}>{label}</AutoCompleteLabel>
         <SelectedItemList>
           {multiple &&
             selectedItems?.map(function renderSelectedItem(
@@ -265,6 +255,7 @@ export const Autocomplete = <T extends unknown>({
               );
             })}
           <UserInput>
+            {!multiple ?? _selectedItem?.avatar}
             {Input ? (
               <Input {...inputProps} />
             ) : (
@@ -275,7 +266,7 @@ export const Autocomplete = <T extends unknown>({
               type="button"
               {...getToggleButtonProps()}
             >
-              <Trigger loading={loading} />
+              {Trigger ? <Trigger loading={loading} /> : undefined}
             </TriggerButton>
           </UserInput>
         </SelectedItemList>
@@ -293,7 +284,14 @@ export const Autocomplete = <T extends unknown>({
               key={`${item.value}${index}`}
               {...getItemProps({ item, index })}
             >
-              {Wrapper ? <Wrapper {...item} /> : item.label}
+              {Wrapper ? (
+                <Wrapper {...item} />
+              ) : (
+                <div>
+                  {data && item.avatar && undefined}
+                  {item.label}
+                </div>
+              )}
             </ListItem>
           ))}
       </ListContainer>
