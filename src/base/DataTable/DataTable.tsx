@@ -18,6 +18,7 @@ import {
 
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { styled } from "@stitches/react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -59,9 +60,9 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="space-y-4">
+    <StyledRoot>
       <DataTableToolbar table={table} />
-      <div className="rounded-md border">
+      <StyledContainer>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -102,7 +103,7 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  css={{ height: "6rem", textAlign: "center" }}
                 >
                   No results.
                 </TableCell>
@@ -110,8 +111,20 @@ export function DataTable<TData, TValue>({
             )}
           </TableBody>
         </Table>
-      </div>
+      </StyledContainer>
       <DataTablePagination table={table} />
-    </div>
+    </StyledRoot>
   );
 }
+
+const StyledRoot = styled("div", { marginTop: "1rem" });
+const StyledContainer = styled("div", {
+  borderRadius: "0.375rem",
+  borderWidth: "1px",
+});
+const Table = styled("table");
+const TableHeader = styled("thead");
+const TableHead = styled("th");
+const TableBody = styled("tbody");
+const TableRow = styled("tr");
+const TableCell = styled("td");

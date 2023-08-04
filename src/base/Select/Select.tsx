@@ -7,6 +7,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
 } from "@radix-ui/react-icons";
+import { FormInputProps } from "../types";
 
 export const SelectTrigger = styled(RadixSelect.SelectTrigger, {
   all: "unset",
@@ -127,8 +128,8 @@ const SelectScrollDownButton = styled(
 );
 
 export type SelectItemValueType = {
-  value: string;
-  label: string;
+  value: string | number;
+  label: string | number;
   disabled?: boolean;
 };
 
@@ -142,19 +143,22 @@ type SelectItemType =
 export const Select = ({
   placeholder,
   groups,
-  selectProps,
   value,
   onChange,
-}: {
-  placeholder?: string;
-  groups: SelectItemType[];
-  selectProps?: Omit<RadixSelect.SelectProps, "value" | "onValueChange">;
-  value?: string;
-  onChange?: (
-    value: string,
-    data?: SelectItemValueType & { group?: string }
-  ) => void;
-}) => (
+  ...selectProps
+}: FormInputProps<
+  {
+    placeholder?: string | number;
+    groups: SelectItemType[];
+    value?: string;
+    onChange?: (
+      value: string,
+      data?: SelectItemValueType & { group?: string }
+    ) => void;
+  },
+  RadixSelect.SelectProps,
+  "value" | "onValueChange"
+>) => (
   <RadixSelect.Root
     {...selectProps}
     value={value}
@@ -173,7 +177,7 @@ export const Select = ({
       }
     }}
   >
-    <SelectTrigger aria-label={placeholder}>
+    <SelectTrigger aria-label={placeholder?.toString()}>
       <RadixSelect.Value placeholder={placeholder} />
       <SelectIcon>
         <ChevronDownIcon />
@@ -195,7 +199,7 @@ export const Select = ({
                       <SelectItem
                         key={index}
                         disabled={item.disabled}
-                        value={item.value}
+                        value={item.value.toString()}
                       >
                         {item.label}
                       </SelectItem>
