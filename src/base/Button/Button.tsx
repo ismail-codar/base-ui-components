@@ -46,6 +46,7 @@ export const Button = styled("button", {
     },
     variant: {
       outline: {},
+      ghost: {},
       violet: {
         backgroundColor: "white",
         color: violet.violet11,

@@ -10,6 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import React from "react";
+import { DataTableColumnHeader } from "./data-table-column-header";
 
 type Person = {
   firstName: string;
@@ -86,18 +87,34 @@ const meta = {
 } satisfies Meta<typeof DataTable>;
 
 export default meta;
+{
+}
 
-export const Story1: StoryObj<typeof meta> = {
+const useDataTableDefault = () => {
+  const [data, setData] = React.useState(() => [...defaultData]);
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+  return table;
+};
+
+export const Pagination: StoryObj<typeof meta> = {
   args: {} as any,
   render: () => {
-    const [data, setData] = React.useState(() => [...defaultData]);
-
-    const table = useReactTable({
-      data,
-      columns,
-      getCoreRowModel: getCoreRowModel(),
-    });
-
+    const table = useDataTableDefault();
     return <DataTablePagination table={table} />;
+  },
+};
+
+export const ColumnHeader: StoryObj<typeof meta> = {
+  args: {} as any,
+  render: () => {
+    const table = useDataTableDefault();
+    return (
+      <DataTableColumnHeader column={table.getAllColumns()[1]} title="Col1" />
+    );
   },
 };
