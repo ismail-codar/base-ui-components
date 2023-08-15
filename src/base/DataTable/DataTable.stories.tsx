@@ -118,3 +118,12 @@ export const ColumnHeader: StoryObj<typeof meta> = {
     );
   },
 };
+
+export const DataTableDemo: StoryObj<typeof meta> = {
+  args: {} as any,
+  render: () => {
+    const table = useDataTableDefault();
+    console.log(table);
+    return <DataTable columns={table.getAllColumns()} data={defaultData} />;
+  },
+};

@@ -7,24 +7,25 @@ import { Task } from "./data";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Checkbox } from "../Checkbox/Checkbox";
+import { Badge } from "../Badge/Badge";
 
 export const columns: ColumnDef<Task>[] = [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        value={table.getIsAllPageRowsSelected()}
+        onChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
-        className="translate-y-[2px]"
+        // className="translate-y-[2px]"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        value={row.getIsSelected()}
+        onChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
-        className="translate-y-[2px]"
+        // className="translate-y-[2px]"
       />
     ),
     enableSorting: false,

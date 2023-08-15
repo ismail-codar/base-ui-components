@@ -4,6 +4,17 @@ import { Column } from "@tanstack/react-table";
 import { Popover } from "../Popover/Popover";
 import { Button } from "../Button/Button";
 import { Separator } from "../Separator/Separator";
+import { Badge } from "../Badge/Badge";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandSeparator,
+} from "../Command/Command";
+import clsx from "clsx";
 
 interface DataTableFacetedFilter<TData, TValue> {
   column?: Column<TData, TValue>;
@@ -89,14 +100,14 @@ export function DataTableFacetedFilter<TData, TValue>({
                   }}
                 >
                   <div
-                    className={cn(
+                    className={clsx(
                       "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
                       isSelected
                         ? "bg-primary text-primary-foreground"
                         : "opacity-50 [&_svg]:invisible"
                     )}
                   >
-                    <CheckIcon className={cn("h-4 w-4")} />
+                    <CheckIcon className={clsx("h-4 w-4")} />
                   </div>
                   {option.icon && (
                     <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />

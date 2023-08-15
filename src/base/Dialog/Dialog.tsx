@@ -18,7 +18,7 @@ export const Dialog = ({
   title: string;
   description?: string;
   children: ReactNode;
-}) => (
+} & RadixDialog.DialogProps) => (
   <RadixDialog.Root>
     <RadixDialog.Trigger asChild>{trigger}</RadixDialog.Trigger>
     <DialogPortal>
