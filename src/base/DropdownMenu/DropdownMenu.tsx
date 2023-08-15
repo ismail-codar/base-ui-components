@@ -1,121 +1,265 @@
-import React from "react";
+import React, { ReactNode, useMemo, useState } from "react";
 import * as RadixDropdownMenu from "@radix-ui/react-dropdown-menu";
-import { styled, keyframes } from "@stitches/react";
-import { violet, mauve, blackA } from "@radix-ui/colors";
+import { styled } from "@stitches/react";
+import { blackA, violet, mauve } from "@radix-ui/colors";
 import {
-  HamburgerMenuIcon,
-  DotFilledIcon,
   CheckIcon,
   ChevronRightIcon,
+  DotFilledIcon,
 } from "@radix-ui/react-icons";
+import { PopperContentProps } from "@radix-ui/react-popper";
 
-export const DropdownMenu = ({}: {}) => {
-  const [bookmarksChecked, setBookmarksChecked] = React.useState(true);
-  const [urlsChecked, setUrlsChecked] = React.useState(false);
-  const [person, setPerson] = React.useState("pedro");
+interface IMenuItem {
+  id?: string;
+  text: ReactNode;
+  rightSlot?: ReactNode;
+  menuItemProps?: RadixDropdownMenu.MenuItemProps;
+  contentProps?: PopperContentProps;
+  data?: any;
+  checkBy?: "checkbox" | "radiogroup";
+  items?: IMenuItem[];
+}
+
+interface IMenu {
+  id?: string;
+  text: ReactNode;
+  data?: any;
+  contentProps?: PopperContentProps;
+  items?: IMenuItem[];
+}
+
+const calcuateItems = (menuItems: IMenu[]) => {
+  const checkedItems: IMenuItem[] = [];
+  const radioGroupItems: {
+    [key: string]: { value: string; items: IMenuItem[] };
+  } = {};
+
+  let stack: any[] = menuItems.slice(0);
+  const parentItems: any = {};
+  while (stack.length) {
+    const item = stack.pop()!;
+    if (!item.id) {
+      item.id = Math.random().toString(36).substring(2);
+    }
+    if (item.items) {
+      item.items.forEach((subItem: any) => {
+        if (!subItem.id) {
+          subItem.id = Math.random().toString(36).substring(2);
+        }
+        parentItems[subItem.id] = item;
+      });
+      stack = stack.concat(item.items);
+    }
+  }
+
+  stack = menuItems.slice(0);
+  while (stack.length) {
+    const item = stack.pop()!;
+    if (!item.id) {
+      item.id = Math.random().toString(36).substring(2);
+    }
+    if (item.items) {
+      stack = stack.concat(item.items);
+    }
+    if (item.checkBy) {
+      if (item.checkBy === "checkbox") {
+        checkedItems.push(item);
+      }
+      if (item.checkBy === "radiogroup") {
+        const parentId = parentItems[item.id].id;
+        if (!radioGroupItems[parentId]) {
+          radioGroupItems[parentId] = {
+            value: parentItems[item.id].data,
+            items: [],
+          };
+        }
+        radioGroupItems[parentId].items.push(item);
+      }
+    }
+  }
+  return { checkedItems, radioGroupItems };
+};
+
+export const DropdownMenu = ({ items }: { items: IMenu[] }) => {
+  const { checkedItems, radioGroupItems } = useMemo(
+    () => calcuateItems(items),
+    [items]
+  );
+
+  const [checkedSelection, setCheckedSelection] =
+    useState<IMenuItem[]>(checkedItems);
+  const [radioSelection, setRadioSelection] = useState(radioGroupItems);
+
+  const renderMenuItem = (
+    menuItem: IMenuItem,
+    index: number,
+    parentId?: string
+  ) => {
+    if (menuItem.items) {
+      return (
+        <RadixDropdownMenu.Sub key={index}>
+          <DropdownMenuSubTrigger>
+            {menuItem.text}
+            <RightSlot>{menuItem.rightSlot || <ChevronRightIcon />}</RightSlot>
+          </DropdownMenuSubTrigger>
+          <RadixDropdownMenu.Portal>
+            <DropdownMenuSubContent {...menuItem.contentProps}>
+              {menuItem.items?.map((subMenuItem, sIndex) => {
+                if (subMenuItem.checkBy === "radiogroup") {
+                  return (
+                    <RadixDropdownMenu.RadioGroup
+                      key={index}
+                      value={radioSelection[subMenuItem.id!].value}
+                      onValueChange={(val) => {
+                        setRadioSelection({
+                          ...radioSelection,
+                          [subMenuItem.id!]: {
+                            value: val,
+                            items: radioSelection[subMenuItem.id!].items,
+                          },
+                        });
+                      }}
+                    >
+                      {renderMenuItem(subMenuItem, sIndex, menuItem.id)}
+                    </RadixDropdownMenu.RadioGroup>
+                  );
+                } else {
+                  return renderMenuItem(subMenuItem, sIndex);
+                }
+              })}
+            </DropdownMenuSubContent>
+          </RadixDropdownMenu.Portal>
+        </RadixDropdownMenu.Sub>
+      );
+    } else {
+      if (!menuItem.text) {
+        return <DropdownMenuSeparator key={index} />;
+      } else if (menuItem.checkBy) {
+        if (menuItem.checkBy === "checkbox") {
+          return (
+            <DropdownMenuCheckboxItem
+              key={index}
+              checked={
+                checkedSelection.find((item) => item.id === menuItem.id)
+                  ?.data as boolean
+              }
+              variant="inset"
+              onCheckedChange={() => {
+                setCheckedSelection(
+                  checkedSelection.map((item) =>
+                    item.id === menuItem.id
+                      ? {
+                          ...item,
+                          data: !item.data,
+                        }
+                      : item
+                  )
+                );
+              }}
+            >
+              <DropdownMenuItemIndicator>
+                <CheckIcon />
+              </DropdownMenuItemIndicator>
+              {menuItem.text}{" "}
+              {menuItem.rightSlot && (
+                <RightSlot>{menuItem.rightSlot}</RightSlot>
+              )}
+            </DropdownMenuCheckboxItem>
+          );
+        } else if (menuItem.checkBy === "radiogroup") {
+          return (
+            <DropdownMenuRadioItem
+              value={menuItem.data.toString()}
+              variant="inset"
+              key={index}
+            >
+              <DropdownMenuItemIndicator>
+                <DotFilledIcon />
+              </DropdownMenuItemIndicator>
+              {menuItem.text}{" "}
+              {menuItem.rightSlot && (
+                <RightSlot>{menuItem.rightSlot}</RightSlot>
+              )}
+            </DropdownMenuRadioItem>
+          );
+        }
+      } else {
+        return (
+          <DropdownMenuItem {...menuItem.menuItemProps} key={index}>
+            {menuItem.text}{" "}
+            {menuItem.rightSlot && <RightSlot>{menuItem.rightSlot}</RightSlot>}
+          </DropdownMenuItem>
+        );
+      }
+    }
+  };
 
   return (
-    <RadixDropdownMenu.Root>
-      <RadixDropdownMenu.Trigger asChild>
-        <IconButton aria-label="Customise options">
-          <HamburgerMenuIcon />
-        </IconButton>
-      </RadixDropdownMenu.Trigger>
-
-      <RadixDropdownMenu.Portal>
-        <DropdownMenuContent sideOffset={5}>
-          <DropdownMenuItem>
-            New Tab <RightSlot>⌘+T</RightSlot>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            New Window <RightSlot>⌘+N</RightSlot>
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            New Private Window <RightSlot>⇧+⌘+N</RightSlot>
-          </DropdownMenuItem>
-          <RadixDropdownMenu.Sub>
-            <DropdownMenuSubTrigger>
-              More Tools
-              <RightSlot>
-                <ChevronRightIcon />
-              </RightSlot>
-            </DropdownMenuSubTrigger>
+    <DropdownMenuRoot>
+      {items.map((menu, index) => {
+        return (
+          <RadixDropdownMenu.Root key={index}>
+            <DropdownMenuTrigger>{menu.text}</DropdownMenuTrigger>
             <RadixDropdownMenu.Portal>
-              <DropdownMenuSubContent sideOffset={2} alignOffset={-5}>
-                <DropdownMenuItem>
-                  Save Page As… <RightSlot>⌘+S</RightSlot>
-                </DropdownMenuItem>
-                <DropdownMenuItem>Create Shortcut…</DropdownMenuItem>
-                <DropdownMenuItem>Name Window…</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Developer Tools</DropdownMenuItem>
-              </DropdownMenuSubContent>
+              <DropdownMenuContent {...menu.contentProps}>
+                {radioSelection[menu.id!] ? (
+                  <RadixDropdownMenu.RadioGroup
+                    key={index}
+                    value={radioSelection[menu.id!].value}
+                    onValueChange={(val) => {
+                      setRadioSelection({
+                        ...radioSelection,
+                        [menu.id!]: {
+                          value: val,
+                          items: radioSelection[menu.id!].items,
+                        },
+                      });
+                    }}
+                  >
+                    {menu.items?.map((menuItem, index) => {
+                      return renderMenuItem(menuItem, index, menu.id);
+                    })}
+                  </RadixDropdownMenu.RadioGroup>
+                ) : (
+                  menu.items?.map((menuItem, index) => {
+                    return renderMenuItem(menuItem, index);
+                  })
+                )}
+              </DropdownMenuContent>
             </RadixDropdownMenu.Portal>
-          </RadixDropdownMenu.Sub>
-          <DropdownMenuSeparator />
-          <DropdownMenuCheckboxItem
-            checked={bookmarksChecked}
-            onCheckedChange={setBookmarksChecked}
-          >
-            <DropdownMenuItemIndicator>
-              <CheckIcon />
-            </DropdownMenuItemIndicator>
-            Show Bookmarks <RightSlot>⌘+B</RightSlot>
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem
-            checked={urlsChecked}
-            onCheckedChange={setUrlsChecked}
-          >
-            <DropdownMenuItemIndicator>
-              <CheckIcon />
-            </DropdownMenuItemIndicator>
-            Show Full URLs
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>People</DropdownMenuLabel>
-          <RadixDropdownMenu.RadioGroup
-            value={person}
-            onValueChange={setPerson}
-          >
-            <DropdownMenuRadioItem value="pedro">
-              <DropdownMenuItemIndicator>
-                <DotFilledIcon />
-              </DropdownMenuItemIndicator>
-              Pedro Duarte
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="colm">
-              <DropdownMenuItemIndicator>
-                <DotFilledIcon />
-              </DropdownMenuItemIndicator>
-              Colm Tuite
-            </DropdownMenuRadioItem>
-          </RadixDropdownMenu.RadioGroup>
-
-          <DropdownMenuArrow />
-        </DropdownMenuContent>
-      </RadixDropdownMenu.Portal>
-    </RadixDropdownMenu.Root>
+          </RadixDropdownMenu.Root>
+        );
+      })}
+    </DropdownMenuRoot>
   );
 };
 
-const slideUpAndFade = keyframes({
-  "0%": { opacity: 0, transform: "translateY(2px)" },
-  "100%": { opacity: 1, transform: "translateY(0)" },
+const DropdownMenuRoot = styled(RadixDropdownMenu.Root, {
+  display: "flex",
+  backgroundColor: "white",
+  padding: 3,
+  borderRadius: 6,
+  boxShadow: `0 2px 10px ${blackA.blackA7}`,
 });
 
-const slideRightAndFade = keyframes({
-  "0%": { opacity: 0, transform: "translateX(-2px)" },
-  "100%": { opacity: 1, transform: "translateX(0)" },
-});
+const DropdownMenuTrigger = styled(RadixDropdownMenu.Trigger, {
+  all: "unset",
+  padding: "8px 12px",
+  outline: "none",
+  userSelect: "none",
+  fontWeight: 500,
+  lineHeight: 1,
+  borderRadius: 4,
+  fontSize: 13,
+  color: violet.violet11,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 2,
 
-const slideDownAndFade = keyframes({
-  "0%": { opacity: 0, transform: "translateY(-2px)" },
-  "100%": { opacity: 1, transform: "translateY(0)" },
-});
-
-const slideLeftAndFade = keyframes({
-  "0%": { opacity: 0, transform: "translateX(2px)" },
-  "100%": { opacity: 1, transform: "translateX(0)" },
+  '&[data-highlighted], &[data-state="open"]': {
+    backgroundColor: violet.violet4,
+  },
 });
 
 const contentStyles = {
@@ -128,34 +272,25 @@ const contentStyles = {
   animationDuration: "400ms",
   animationTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
   willChange: "transform, opacity",
-  '&[data-state="open"]': {
-    '&[data-side="top"]': { animationName: slideDownAndFade },
-    '&[data-side="right"]': { animationName: slideLeftAndFade },
-    '&[data-side="bottom"]': { animationName: slideUpAndFade },
-    '&[data-side="left"]': { animationName: slideRightAndFade },
-  },
 };
 
 const DropdownMenuContent = styled(RadixDropdownMenu.Content, contentStyles);
 const DropdownMenuSubContent = styled(
   RadixDropdownMenu.SubContent,
-  contentStyles,
+  contentStyles
 );
-
-const DropdownMenuArrow = styled(RadixDropdownMenu.Arrow, { fill: "white" });
 
 const itemStyles = {
   all: "unset",
   fontSize: 13,
   lineHeight: 1,
   color: violet.violet11,
-  borderRadius: 3,
+  borderRadius: 4,
   display: "flex",
   alignItems: "center",
   height: 25,
-  padding: "0 5px",
+  padding: "0 10px",
   position: "relative",
-  paddingLeft: 25,
   userSelect: "none",
 
   "&[data-disabled]": {
@@ -164,17 +299,20 @@ const itemStyles = {
   },
 
   "&[data-highlighted]": {
-    backgroundColor: violet.violet9,
+    backgroundImage: `linear-gradient(135deg, ${violet.violet9} 0%, ${violet.violet10} 100%)`,
     color: violet.violet1,
+  },
+
+  variants: {
+    variant: {
+      inset: {
+        paddingLeft: 20,
+      },
+    },
   },
 };
 
 const DropdownMenuItem = styled(RadixDropdownMenu.Item, itemStyles);
-const DropdownMenuCheckboxItem = styled(
-  RadixDropdownMenu.CheckboxItem,
-  itemStyles,
-);
-const DropdownMenuRadioItem = styled(RadixDropdownMenu.RadioItem, itemStyles);
 const DropdownMenuSubTrigger = styled(RadixDropdownMenu.SubTrigger, {
   '&[data-state="open"]': {
     backgroundColor: violet.violet4,
@@ -183,23 +321,16 @@ const DropdownMenuSubTrigger = styled(RadixDropdownMenu.SubTrigger, {
   ...itemStyles,
 });
 
-const DropdownMenuLabel = styled(RadixDropdownMenu.Label, {
-  paddingLeft: 25,
-  fontSize: 12,
-  lineHeight: "25px",
-  color: mauve.mauve11,
-});
-
-const DropdownMenuSeparator = styled(RadixDropdownMenu.Separator, {
-  height: 1,
-  backgroundColor: violet.violet6,
-  margin: 5,
-});
+const DropdownMenuCheckboxItem = styled(
+  RadixDropdownMenu.CheckboxItem,
+  itemStyles
+);
+const DropdownMenuRadioItem = styled(RadixDropdownMenu.RadioItem, itemStyles);
 
 const DropdownMenuItemIndicator = styled(RadixDropdownMenu.ItemIndicator, {
   position: "absolute",
   left: 0,
-  width: 25,
+  width: 20,
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
@@ -208,23 +339,13 @@ const DropdownMenuItemIndicator = styled(RadixDropdownMenu.ItemIndicator, {
 const RightSlot = styled("div", {
   marginLeft: "auto",
   paddingLeft: 20,
-  color: mauve.mauve11,
+  color: mauve.mauve9,
   "[data-highlighted] > &": { color: "white" },
   "[data-disabled] &": { color: mauve.mauve8 },
 });
 
-const IconButton = styled("button", {
-  all: "unset",
-  fontFamily: "inherit",
-  borderRadius: "100%",
-  height: 35,
-  width: 35,
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  color: violet.violet11,
-  backgroundColor: "white",
-  boxShadow: `0 2px 10px ${blackA.blackA7}`,
-  "&:hover": { backgroundColor: violet.violet3 },
-  "&:focus": { boxShadow: `0 0 0 2px black` },
+const DropdownMenuSeparator = styled(RadixDropdownMenu.Separator, {
+  height: 1,
+  backgroundColor: violet.violet6,
+  margin: 5,
 });
