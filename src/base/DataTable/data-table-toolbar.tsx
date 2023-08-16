@@ -8,6 +8,7 @@ import { Button } from "../Button/Button";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { Input } from "../Input/Input";
 import { priorities, statuses } from "./data";
+import { styled } from "@stitches/react";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -19,7 +20,7 @@ export function DataTableToolbar<TData>({
   const isFiltered = table.getState().columnFilters.length > 0;
 
   return (
-    <div className="flex items-center justify-between">
+    <StyledToolbarRoot>
       <div className="flex flex-1 items-center space-x-2">
         <Input
           placeholder="Filter tasks..."
@@ -55,6 +56,12 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <DataTableViewOptions table={table} />
-    </div>
+    </StyledToolbarRoot>
   );
 }
+
+const StyledToolbarRoot = styled("div", {
+  display: "inline-flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+});

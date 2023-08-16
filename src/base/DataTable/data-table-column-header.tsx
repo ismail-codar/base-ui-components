@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 import clsx from "clsx";
+import { styled } from "@stitches/react";
 
 interface DataTableColumnHeaderProps<TData, TValue>
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -31,40 +32,66 @@ export function DataTableColumnHeader<TData, TValue>({
   }
 
   return (
-    <div className={clsx("flex items-center space-x-2", className)}>
+    <DataTableColumnRoot>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="small"
-            className="-ml-3 h-8 data-[state=open]:bg-accent"
+            css={{ marginLeft: "-0.75rem", height: "2rem" }}
           >
             <span>{title}</span>
-            {column.getIsSorted() === "desc" ? (
-              <ArrowDownIcon className="ml-2 h-4 w-4" />
-            ) : column.getIsSorted() === "asc" ? (
-              <ArrowUpIcon className="ml-2 h-4 w-4" />
-            ) : (
-              <CaretSortIcon className="ml-2 h-4 w-4" />
-            )}
+            <IconSelectedContainer>
+              {column.getIsSorted() === "desc" ? (
+                <ArrowDownIcon />
+              ) : column.getIsSorted() === "asc" ? (
+                <ArrowUpIcon />
+              ) : (
+                <CaretSortIcon />
+              )}
+            </IconSelectedContainer>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-            <ArrowUpIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+          <StyledDropdownMenuItem onClick={() => column.toggleSorting(false)}>
+            <ArrowUpIcon />
             Asc
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-            <ArrowDownIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+          </StyledDropdownMenuItem>
+          <StyledDropdownMenuItem onClick={() => column.toggleSorting(true)}>
+            <ArrowDownIcon />
             Desc
-          </DropdownMenuItem>
+          </StyledDropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-            <EyeNoneIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+          <StyledDropdownMenuItem
+            onClick={() => column.toggleVisibility(false)}
+          >
+            <EyeNoneIcon />
             Hide
-          </DropdownMenuItem>
+          </StyledDropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </div>
+    </DataTableColumnRoot>
   );
 }
+
+const DataTableColumnRoot = styled("div", {
+  display: "flex",
+  marginLeft: "0.5rem",
+  alignItems: "center",
+});
+const IconSelectedContainer = styled("div", {
+  marginLeft: "0.5rem",
+  width: "1rem",
+  height: "1rem",
+});
+const IconContainer = styled("div", {
+  marginRight: "0.5rem",
+  width: "0.875rem",
+  height: "0.875rem",
+});
+
+const StyledDropdownMenuItem = styled(DropdownMenuItem, {
+  display: "flex",
+  alignItems: "center",
+  padding: 8,
+});

@@ -3,6 +3,8 @@ import { DataTable } from "./DataTable";
 import { DataTablePagination } from "./data-table-pagination";
 import { Table } from "@tanstack/react-table";
 
+// https://ui.shadcn.com/examples/tasks
+
 import {
   createColumnHelper,
   flexRender,
@@ -11,6 +13,7 @@ import {
 } from "@tanstack/react-table";
 import React from "react";
 import { DataTableColumnHeader } from "./data-table-column-header";
+import { DataTableToolbar } from "./data-table-toolbar";
 
 type Person = {
   firstName: string;
@@ -116,6 +119,14 @@ export const ColumnHeader: StoryObj<typeof meta> = {
     return (
       <DataTableColumnHeader column={table.getAllColumns()[1]} title="Col1" />
     );
+  },
+};
+
+export const DataTableToolbarDemo: StoryObj<typeof meta> = {
+  args: {} as any,
+  render: () => {
+    const table = useDataTableDefault();
+    return <DataTableToolbar table={table} />;
   },
 };
 
